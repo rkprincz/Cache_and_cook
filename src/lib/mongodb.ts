@@ -4,7 +4,7 @@
  */
 
 export async function getUserProfile(email: string) {
-  const response = await fetch('http://localhost:4000/api/profile/' + encodeURIComponent(email));
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profile/${encodeURIComponent(email)}`);
   if (!response.ok) {
     throw new Error('Failed to fetch user profile');
   }
@@ -12,7 +12,7 @@ export async function getUserProfile(email: string) {
 }
 
 export async function saveUserProfile(profile: any) {
-  const response = await fetch('http://localhost:4000/api/profile', {
+  const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profile`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

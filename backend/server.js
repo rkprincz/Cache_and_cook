@@ -5,30 +5,18 @@ import { MongoClient } from 'mongodb';
 import bodyParser from 'body-parser';
 
 const app = express();
-app.use(cors());
+
+const PORT = process.env.PORT || 4000;
+const MONGODB_URI = process.env.MONGODB_URI;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+app.use(cors({
+  origin: FRONTEND_URL,
+  credentials: true,
+}));
 app.use(bodyParser.json());
 
-// API to get a single meeting by id or meetingId
-app.get('/api/meetings/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    // Try to find by meetingId or id
-    const meeting = await db.collection('meetings').findOne({ $or: [ { meetingId: id }, { id } ] });
-    if (!meeting) {
-      return res.status(404).json({ message: 'Meeting not found' });
-    }
-    res.json(meeting);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-const port = 4000;
-
-app.use(cors());
-app.use(bodyParser.json());
-
-const uri = 'mongodb+srv://rohithramanagdg:Cache_And_Cook@cluster0.zwossjq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-const client = new MongoClient(uri);
+const client = new MongoClient(MONGODB_URI);
 let db;
 
 async function connectDB() {
@@ -42,8 +30,6 @@ async function connectDB() {
 }
 
 connectDB();
-
-// API to get user profile by email
 app.get('/api/profile/:email', async (req, res) => {
   try {
     const email = req.params.email;
@@ -63,8 +49,6 @@ app.get('/api/profile/:email', async (req, res) => {
 app.post('/api/profile', async (req, res) => {
   try {
     const profile = { ...req.body };
-    console.log('Received profile POST:', profile);
-
     if (!profile.email) {
       return res.status(400).json({ message: 'Email is required' });
     }
@@ -171,6 +155,6 @@ app.get('/api/ai-insights', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Backend server running on http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Backend server running on port ${PORT}`);
 });
